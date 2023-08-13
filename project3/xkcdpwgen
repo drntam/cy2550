@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+import argparse
+import random
+
+def load_words(filename):
+    with open(filename, 'r') as file:
+        return file.read().splitlines()
+
+def gen_password(wordlist, num_words, num_caps, num_numbers, num_symbols):
+    password = []
+    for _ in range(num_words):
+        word = random.choice(wordlist)
+        if num_caps >= 1:
+            word = word.capitalize()
+            num_caps -= 1
+        password.append(word)
+    password.extend(str(random.randint(0, 9)) for _ in range(num_numbers))
+    password.extend(random.choice('@#$%~&*!.:^$;') for _ in range(num_symbols))
+    random.shuffle(password)
+    return ''.join(password)
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate a secure, memorable password using the XKCD method")
+    parser.add_argument('-w', '--words', type=int, default=4, help="include WORDS words in the password (default=4)")
+    parser.add_argument('-c', '--caps', type=int, default=0, help="capitalize the first letter of CAPS random words (default=0)")
+    parser.add_argument('-n', '--numbers', type=int, default=0, help="insert NUMBERS random numbers in the password (default=0)")
+    parser.add_argument('-s', '--symbols', type=int, default=0, help="insert SYMBOLS random symbols in the password (default=0)")
+    args = parser.parse_args()
+    wordlist = load_words('words.txt')
+
+    if args.words < 1 or args.caps < 0 or args.numbers < 0 or args.symbols < 0:
+        print("Invalid arguments. Please provide valid values.")
+        return
+
+    password = gen_password(wordlist, args.words, args.caps, args.numbers, args.symbols)
+    print(password)
+
+if __name__ == "__main__":
+    main()
